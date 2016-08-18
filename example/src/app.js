@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Geosuggest from '../../src/Geosuggest';
+import Geocomplete from '../../src/Geocomplete';
 
 var App = React.createClass({ // eslint-disable-line
   /**
@@ -18,7 +18,7 @@ var App = React.createClass({ // eslint-disable-line
 
     return ( // eslint-disable-line
       <div>
-        <Geosuggest
+        <Geocomplete
           fixtures={fixtures}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
