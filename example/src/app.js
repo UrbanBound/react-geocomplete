@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Geocomplete from '../../src/Geocomplete';
+import ValidatedGeocomplete from '../../src/ValidatedGeocomplete';
 
 var App = React.createClass({ // eslint-disable-line
   /**
@@ -15,10 +15,13 @@ var App = React.createClass({ // eslint-disable-line
       {label: 'Rio', location: {lat: -22.066452, lng: -42.9232368}},
       {label: 'Tokyo', location: {lat: 35.673343, lng: 139.710388}}
     ];
-
+    const requiredErrorComponent = () => <div className="derp">It is required</div>,
+      notFoundErrorComponent = props => <div className="derp">Could not find {props.userInput}</div>;
     return ( // eslint-disable-line
       <div>
-        <Geocomplete
+        <ValidatedGeocomplete
+          requiredErrorComponent={requiredErrorComponent}
+          notFoundErrorComponent={notFoundErrorComponent}
           fixtures={fixtures}
           onFocus={this.onFocus}
           onBlur={this.onBlur}

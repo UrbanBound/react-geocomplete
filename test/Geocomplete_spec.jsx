@@ -293,6 +293,13 @@ describe('Component: Geocomplete', () => {
       });
       expect(onSuggestSelect.calledOnce).to.be.false; // eslint-disable-line no-unused-expressions, max-len
     });
+
+    it('provides access to the value', () => {
+      const geoSuggestInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+      geoSuggestInput.value = 'New';
+      TestUtils.Simulate.change(geoSuggestInput);
+      expect(component.value).to.equal("New");
+    });
   });
 
   describe('with tab ignored', () => {

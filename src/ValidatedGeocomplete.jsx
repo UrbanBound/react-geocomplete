@@ -1,14 +1,25 @@
+import filterInputAttributes from './filter-input-attributes';
 import defaults from './defaults';
 import propTypes from './prop-types';
 import React from 'react';
 import Geocomplete from './Geocomplete.jsx';
+import some from 'lodash.some';
 
 class ValidatedGeocomplete extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      validationState: this.getInitialValidationState(props.initialValue)
+      validationState: 'initial'
     };
+
+    this.onChange = this.onChange.bind(this);
+    this.onBlur = this.onBlur.bind(this);
+    this.inputMatchesAutocomplete = this.inputMatchesAutocomplete.bind(this);
+    this.renderValidationErrors = this.renderValidationErrors.bind(this);
+  }
+
+  get value() {
+    return this.refs.geocompleteBase.value;
   }
 
   componentWillMount() {
@@ -29,17 +40,7 @@ class ValidatedGeocomplete extends React.Component {
     this.geocoder = new googleMaps.Geocoder();
   }
 
-  getInitialValidationState(initialValue) {
-    return initialValue ? 'initialInput' : 'empty';
-  }
-
-  componentDidMount() {
-    if (this.props.validateInitial) {
-      this.validateInitialInput();
-    }
-  }
-
-  autocompleteOptions(userInput) {
+  inputMatchesAutocomplete(userInput, matches, doesNotMatch) {
     const options = {
       input: userInput
     };
@@ -55,37 +56,65 @@ class ValidatedGeocomplete extends React.Component {
         country: this.props.country
       };
     }
-    return options;
-  }
 
-  // validateInitialInput() {
-  //   const onSuccessfulGeocode = (result) => {
-  //     if (this.props.initialInput === result) {
-  //
-  //     }
-  //   }
-  //   this.onInputGeocoded();
-  // }
-
-  inputMatchesAutocomplete(input, matches, doesNotMatch){
-    const options = this.autocompleteOptions(input);
     this.autocompleteService.getPlacePredictions(
       options,
       suggestsGoogle => {
-
-      });
-  }
-
-  onInputGeocoded(geocodeResult, success) {
-    success(geocodeResult);
-    this.props.onInputGeocoded(geocodeResult);
+        if (some(suggestsGoogle, {description: userInput})) {
+          matches();
+        } else {
+          doesNotMatch(userInput);
+        }
+      }
+    );
   }
 
   isValid() {
     return this.state.validationState === "valid";
   }
+
+  onChange(userInput) {
+    this.setState({validationState: 'changing'}, () => this.props.onChange(userInput));
+  }
+
+  onBlur(value) {
+    const onBlurAfterStateChange = () => this.props.onBlur(value),
+      shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
+      shouldValidateRequired = Boolean(this.props.requiredErrorComponent);
+
+    if (!Boolean(value) && shouldValidateRequired) {
+      this.setState({validationState: 'invalidEmpty'}, onBlurAfterStateChange);
+    } else if (shouldValidateInputFound) {
+      const inputIsValid = () => this.setState({validationState: 'valid'}, onBlurAfterStateChange),
+        inputIsNotValid = input => this.setState({validationState: 'invalidNotFound', notFoundCity: input}, onBlurAfterStateChange);
+      this.inputMatchesAutocomplete(value, inputIsValid, inputIsNotValid);
+    } else {
+      this.props.onBlur(value);
+    }
+  }
+
+  renderValidationErrors() {
+    let ErrorComponent = null;
+    switch (this.state.validationState) {
+      case "invalidEmpty":
+        ErrorComponent = this.props.requiredErrorComponent;
+        return <ErrorComponent/>;
+      case "invalidNotFound":
+        ErrorComponent = this.props.notFoundErrorComponent;
+        return <ErrorComponent userInput={this.state.notFoundCity}/>;
+      default:
+        return null;
+    }
+  }
+
   render() {
-    return <Geocomplete {...this.props}/>;
+    const attributes = filterInputAttributes(this.props);
+    return (
+      <div>
+        <Geocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...attributes}/>
+        {this.renderValidationErrors()}
+      </div>
+    );
   }
 }
 

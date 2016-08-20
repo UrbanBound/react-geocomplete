@@ -20,6 +20,7 @@
     "classnames": "^2.2.3",
     "lodash.debounce": "^4.0.6",
     "lodash.ismatch": "^4.0.6",
+    "lodash.some": "^4.0.6",
     "react-addons-shallow-compare": "^0.14.8"
   },
   "devDependencies": {

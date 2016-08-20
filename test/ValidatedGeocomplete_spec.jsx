@@ -77,8 +77,11 @@ describe('Component: ValidatedGeocomplete', () => {
 
       it('should return true if the input matches an autocomplete description', () => {
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'New York, NY, United States';
         TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(onBlur.withArgs('New York, NY, United States').calledOnce).to.be.true; // eslint-disable-line no-unused-expressions, max-len
         expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
       });
 
@@ -93,8 +96,9 @@ describe('Component: ValidatedGeocomplete', () => {
 
   describe('when a requiredErrorComponent is provided', () => {
     const requiredErrorComponentClass = "geocomplete__required-error",
+      requiredErrorComponent = () => <div className={requiredErrorComponentClass}>It is required</div>,
       props = {
-        requiredErrorComponent: <div className={requiredErrorComponentClass}>It is required</div>
+        requiredErrorComponent: requiredErrorComponent
       };
 
     beforeEach(() => render(props));
@@ -153,8 +157,9 @@ describe('Component: ValidatedGeocomplete', () => {
 
   describe('when a notFoundErrorComponent is provided', () => {
     const notFoundErrorComponentClass = "geocomplete__not-found-error",
+      notFoundErrorComponent = props => <div className={notFoundErrorComponentClass}>Could not find {props.userInput}</div>,
       props = {
-        notFoundErrorComponent: <div className={notFoundErrorComponentClass}>It is required</div>
+        notFoundErrorComponent: notFoundErrorComponent
       };
 
     beforeEach(() => render(props));

@@ -161,6 +161,10 @@ class Geocomplete extends React.Component {
     this.setState({userInput: ''}, this.hideSuggests);
   }
 
+  get value() {
+    return this.state.userInput;
+  }
+
   /**
    * Search for new suggests
    */
