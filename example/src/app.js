@@ -23,6 +23,7 @@ var App = React.createClass({ // eslint-disable-line
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChange={this.onChange}
+          autoActivateFirstSuggest={true}
           onSuggestSelect={this.onSuggestSelect}
           onSuggestNoResults={this.onSuggestNoResults}
           location={new google.maps.LatLng(53.558572, 9.9278215)}

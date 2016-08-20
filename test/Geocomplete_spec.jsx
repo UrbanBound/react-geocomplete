@@ -438,5 +438,17 @@ describe('Component: Geocomplete', () => {
       });
       expect(onSuggestSelect.calledOnce).to.be.true; // eslint-disable-line no-unused-expressions, max-len
     });
+
+    it('should set the value on tab', () => {
+      const geoSuggestInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+      geoSuggestInput.value = 'New';
+      TestUtils.Simulate.change(geoSuggestInput);
+      TestUtils.Simulate.keyDown(geoSuggestInput, {
+        key: 'Tab',
+        keyCode: 9,
+        which: 9
+      });
+      expect(geoSuggestInput.value).to.equal('New York, NY, United States'); // eslint-disable-line no-unused-expressions, max-len
+    });
   });
 });
