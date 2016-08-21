@@ -92,7 +92,7 @@ class ValidatedGeocomplete extends React.Component {
       shouldValidateRequired = Boolean(this.props.requiredErrorComponent);
     if (!Boolean(userInput) && shouldValidateRequired) {
       this.setState({validationState: 'invalidEmpty'}, afterValidate);
-    } else if (shouldValidateInputFound) {
+    } else if (Boolean(userInput) && shouldValidateInputFound) {
       const inputIsValid = () => {
           this.setState({validationState: 'valid'}, afterValidate);
         },
@@ -126,9 +126,13 @@ class ValidatedGeocomplete extends React.Component {
   }
 
   render() {
-    var {onChange, onBlur, ...otherProps} = this.props;
+    const {onChange, onBlur, errorInputClassName, ...otherProps} = this.props;
+    let cx = "";
+    if (this.state.validationState === "invalidEmpty" || this.state.validationState === "invalidNotFound") {
+      cx += errorInputClassName;
+    }
     return (
-      <div>
+      <div className={cx}>
         <BaseGeocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...otherProps}/>
         {this.renderValidationErrors()}
       </div>

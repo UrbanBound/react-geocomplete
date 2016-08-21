@@ -263,26 +263,4 @@ describe('Component: ValidatedGeocomplete', () => {
       });
     });
   });
-
-  describe('with autoActivateFirstSuggest set to false', () => {
-    const props = {
-      autoActivateFirstSuggest: true
-    };
-
-    beforeEach(() => render(props));
-
-    it('isValid() should return false with an input that does not have any autocomplete suggestions', () => { // eslint-disable-line max-len
-      const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
-      geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
-      TestUtils.Simulate.change(geocompleteInput);
-      expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
-    });
-
-    it('isValid() should return false with an input that does not match any of the autosuggestions', () => {
-      const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
-      geocompleteInput.value = 'New'; // This does match a fixture but not fully
-      TestUtils.Simulate.change(geocompleteInput);
-      expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
-    });
-  });
 });

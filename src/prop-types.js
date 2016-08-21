@@ -33,6 +33,7 @@ export default {
     suggestItem: React.PropTypes.object
   }),
   ignoreTab: React.PropTypes.bool,
-  notFoundErrorComponent: React.PropTypes.element,
-  requiredErrorComponent: React.PropTypes.element
+  notFoundErrorComponent: React.PropTypes.func,
+  requiredErrorComponent: React.PropTypes.func,
+  errorInputClassName: React.PropTypes.string
 };

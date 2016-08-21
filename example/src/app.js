@@ -22,6 +22,7 @@ var App = React.createClass({ // eslint-disable-line
         <ValidatedGeocomplete
           requiredErrorComponent={requiredErrorComponent}
           notFoundErrorComponent={notFoundErrorComponent}
+          errorInputClassName="make-red"
           fixtures={fixtures}
           onFocus={this.onFocus}
           onActivateSuggest={this.onActivateSuggest}

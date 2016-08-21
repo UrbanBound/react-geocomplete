@@ -16,6 +16,10 @@ input, select, button, textarea {
   color: inherit;
 }
 
+.make-red {
+  color: red;
+}
+
 /**
  * Base
  */
