@@ -3590,7 +3590,7 @@ var ValidatedGeocomplete = function (_React$Component) {
           shouldValidateRequired = Boolean(this.props.requiredErrorComponent);
       if (!Boolean(userInput) && shouldValidateRequired) {
         this.setState({ validationState: 'invalidEmpty' }, afterValidate);
-      } else if (shouldValidateInputFound) {
+      } else if (Boolean(userInput) && shouldValidateInputFound) {
         var inputIsValid = function inputIsValid() {
           _this5.setState({ validationState: 'valid' }, afterValidate);
         },
@@ -3634,12 +3634,17 @@ var ValidatedGeocomplete = function (_React$Component) {
       var _props = this.props;
       var onChange = _props.onChange;
       var onBlur = _props.onBlur;
+      var errorInputClassName = _props.errorInputClassName;
 
-      var otherProps = _objectWithoutProperties(_props, ['onChange', 'onBlur']);
+      var otherProps = _objectWithoutProperties(_props, ['onChange', 'onBlur', 'errorInputClassName']);
 
+      var cx = "";
+      if (this.state.validationState === "invalidEmpty" || this.state.validationState === "invalidNotFound") {
+        cx += errorInputClassName;
+      }
       return _react2.default.createElement(
         'div',
-        null,
+        { className: cx },
         _react2.default.createElement(_BaseGeocomplete2.default, _extends({ ref: 'geocompleteBase', onChange: this.onChange, onBlur: this.onBlur }, otherProps)),
         this.renderValidationErrors()
       );
@@ -3969,8 +3974,9 @@ exports.default = {
     suggestItem: _react2.default.PropTypes.object
   }),
   ignoreTab: _react2.default.PropTypes.bool,
-  notFoundErrorComponent: _react2.default.PropTypes.element,
-  requiredErrorComponent: _react2.default.PropTypes.element
+  notFoundErrorComponent: _react2.default.PropTypes.func,
+  requiredErrorComponent: _react2.default.PropTypes.func,
+  errorInputClassName: _react2.default.PropTypes.string
 };
 
 },{}],14:[function(require,module,exports){
