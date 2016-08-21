@@ -30,5 +30,7 @@ export default {
     'suggests': {},
     'suggestItem': {}
   },
-  ignoreTab: false
+  ignoreTab: false,
+  notFoundErrorComponent: null,
+  requiredErrorComponent: null
 };

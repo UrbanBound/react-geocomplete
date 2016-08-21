@@ -32,5 +32,7 @@ export default {
     suggests: React.PropTypes.object,
     suggestItem: React.PropTypes.object
   }),
-  ignoreTab: React.PropTypes.bool
+  ignoreTab: React.PropTypes.bool,
+  notFoundErrorComponent: React.PropTypes.element,
+  requiredErrorComponent: React.PropTypes.element
 };
