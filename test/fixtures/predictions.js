@@ -14,6 +14,10 @@ export default function predictions() {
       'terms': [
         {
           'offset': 0,
+          'value': 'New York, NY, United States'
+        },
+        {
+          'offset': 0,
           'value': 'New York'
         },
         {

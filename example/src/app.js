@@ -24,6 +24,7 @@ var App = React.createClass({ // eslint-disable-line
           notFoundErrorComponent={notFoundErrorComponent}
           fixtures={fixtures}
           onFocus={this.onFocus}
+          onActivateSuggest={this.onActivateSuggest}
           onBlur={this.onBlur}
           onChange={this.onChange}
           autoActivateFirstSuggest={true}
@@ -40,6 +41,10 @@ var App = React.createClass({ // eslint-disable-line
    */
   onFocus: function() {
     console.log('onFocus'); // eslint-disable-line
+  },
+
+  onActivateSuggest: function(value) {
+    console.log('onActivateSuggest', value);
   },
 
   /**

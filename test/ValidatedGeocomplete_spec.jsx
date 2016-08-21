@@ -16,8 +16,6 @@ describe('Component: ValidatedGeocomplete', () => {
     onFocus = null,
     onChange = null,
     onBlur = null,
-    onRenderNotFoundError = null,
-    onRenderRequiredError = null,
     render = props => {
       onSuggestSelect = sinon.spy();
       onActivateSuggest = sinon.spy();
@@ -25,9 +23,6 @@ describe('Component: ValidatedGeocomplete', () => {
       onChange = sinon.spy();
       onFocus = sinon.spy();
       onBlur = sinon.spy();
-      onRenderNotFoundError = sinon.spy();
-      onRenderRequiredError = sinon.spy();
-
       component = TestUtils.renderIntoDocument(
         <ValidatedGeocomplete
           radius='20'
@@ -38,8 +33,6 @@ describe('Component: ValidatedGeocomplete', () => {
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
-          onRenderNotFoundError={onRenderNotFoundError}
-          onRenderRequiredError={onRenderRequiredError}
           style={{
             'input': {
               'borderColor': '#000'
@@ -64,15 +57,17 @@ describe('Component: ValidatedGeocomplete', () => {
     });
 
     describe('isValid()', () => {
-      it('should return false with empty input', () => {
-        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+      it('should return true with empty input', () => {
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
       });
 
-      it('should return false with an input that does not have any autocomplete suggestions', () => { // eslint-disable-line max-len
+      it('should return true with an input that does not have any autocomplete suggestions', () => { // eslint-disable-line max-len
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
         TestUtils.Simulate.change(geocompleteInput);
-        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
       });
 
       it('should return true if the input matches an autocomplete description', () => {
@@ -81,14 +76,15 @@ describe('Component: ValidatedGeocomplete', () => {
         geocompleteInput.value = 'New York, NY, United States';
         TestUtils.Simulate.change(geocompleteInput);
         TestUtils.Simulate.blur(geocompleteInput);
-        expect(onBlur.withArgs('New York, NY, United States').calledOnce).to.be.true; // eslint-disable-line no-unused-expressions, max-len
         expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
       });
 
       it('should return true with an input that autocompletes to a suggestion', () => {
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'New'; // This does match a fixture but not fully
         TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
         expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
       });
     });
@@ -103,6 +99,52 @@ describe('Component: ValidatedGeocomplete', () => {
 
     beforeEach(() => render(props));
 
+    describe("isValid()", () => {
+      it('should return false with empty input', () => {
+        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return true with an input that does not have any autocomplete suggestions', () => { // eslint-disable-line max-len
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return true if the input matches an autocomplete description', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'New York, NY, United States';
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return true with an input that autocompletes to a suggestion', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'New'; // This does match a fixture but not fully
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return false if the input has been changed and then set to empty again', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'New'; // This does match a fixture but not fully
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = '';
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+      });
+    });
+
     describe("requiredErrorComponent", () => {
       it("Does not render this component on intial render", () => {
         const errors = TestUtils.scryRenderedDOMComponentsWithClass(component, requiredErrorComponentClass); // eslint-disable-line max-len
@@ -112,13 +154,10 @@ describe('Component: ValidatedGeocomplete', () => {
       it("Does not render requiredErrorComponent if there is a value entered", () => {
         let errors = null;
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
         TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13
-        });
+        TestUtils.Simulate.blur(geocompleteInput);
         errors = TestUtils.scryRenderedDOMComponentsWithClass(component, requiredErrorComponentClass); // eslint-disable-line max-len
         expect(errors).to.be.empty; // eslint-disable-line no-unused-expressions
       });
@@ -126,31 +165,11 @@ describe('Component: ValidatedGeocomplete', () => {
       it("Does render requiredErrorComponent if there has been a change to the input and the input is blurred", () => {
         let errors = null;
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13
-        });
+        TestUtils.Simulate.blur(geocompleteInput);
         errors = TestUtils.scryRenderedDOMComponentsWithClass(component, requiredErrorComponentClass); // eslint-disable-line max-len
         expect(errors).to.have.lengthOf(1); // eslint-disable-line no-unused-expressions
-      });
-    });
-
-    describe('onRenderRequiredError', () => {
-      it("Does not call this on initial render", () => {
-        expect(onRenderRequiredError.called).to.be.false; // eslint-disable-line no-unused-expressions
-      });
-
-      it("Does call this if there has been a change to the input and the input is blurred", () => {
-        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
-        TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13
-        });
-        expect(onRenderRequiredError.called).to.be.true; // eslint-disable-line no-unused-expressions
       });
     });
   });
@@ -164,6 +183,57 @@ describe('Component: ValidatedGeocomplete', () => {
 
     beforeEach(() => render(props));
 
+    describe("isValid()", () => {
+      it('should return true with empty input', () => {
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return false with an input that does not have any autocomplete suggestions', () => { // eslint-disable-line max-len
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return true if the input matches an autocomplete description', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'New York, NY, United States';
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return false with an input that autocompletes to a suggestion', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
+        geocompleteInput.value = 'New'; // This does match a fixture but not fully
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.false; // eslint-disable-line no-unused-expressions
+      });
+
+      it('should return true if the input does not match but a suggestion is selected', () => {
+        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        geocompleteInput.value = 'New'; // This does match a fixture but not fully
+        TestUtils.Simulate.change(geocompleteInput);
+        TestUtils.Simulate.keyDown(geocompleteInput, {
+          key: 'keyDown',
+          keyCode: 40,
+          which: 40
+        });
+        TestUtils.Simulate.keyDown(geocompleteInput, {
+          key: 'Enter',
+          keyCode: 13,
+          which: 13
+        });
+        TestUtils.Simulate.blur(geocompleteInput);
+        expect(component.isValid()).to.be.true; // eslint-disable-line no-unused-expressions
+      });
+    });
+
     describe("notFoundErrorComponent", () => {
       it("Does not render this component on intial render", () => {
         const errors = TestUtils.scryRenderedDOMComponentsWithClass(component, notFoundErrorComponentClass); // eslint-disable-line max-len
@@ -173,13 +243,10 @@ describe('Component: ValidatedGeocomplete', () => {
       it("Does not render requiredErrorComponent if there has been a change to the input and the input is blurred", () => {
         let errors = null;
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'New York, NY, United States'; // This matches a fixture
         TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13
-        });
+        TestUtils.Simulate.blur(geocompleteInput);
         errors = TestUtils.scryRenderedDOMComponentsWithClass(component, notFoundErrorComponentClass); // eslint-disable-line max-len
         expect(errors).to.be.empty; // eslint-disable-line no-unused-expressions
       });
@@ -187,33 +254,12 @@ describe('Component: ValidatedGeocomplete', () => {
       it("Does render requiredErrorComponent if there has been a change to the input and the input is blurred", () => {
         let errors = null;
         const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
+        TestUtils.Simulate.focus(geocompleteInput);
         geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
         TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Enter',
-          keyCode: 13,
-          which: 13
-        });
+        TestUtils.Simulate.blur(geocompleteInput);
         errors = TestUtils.scryRenderedDOMComponentsWithClass(component, notFoundErrorComponentClass); // eslint-disable-line max-len
         expect(errors).to.have.lengthOf(1); // eslint-disable-line no-unused-expressions
-      });
-    });
-
-    describe('onRenderNotFoundError', () => {
-      it("Does not call this on initial render", () => {
-        expect(onRenderNotFoundError.called).to.be.false; // eslint-disable-line no-unused-expressions
-      });
-
-      it("Does call if there has been a change to the input and the input is blurred", () => {
-        const geocompleteInput = TestUtils.findRenderedDOMComponentWithClass(component, 'geosuggest__input'); // eslint-disable-line max-len
-        geocompleteInput.value = 'There is no result for this. Really.'; // This does not match a fixture
-        TestUtils.Simulate.change(geocompleteInput);
-        TestUtils.Simulate.keyDown(geocompleteInput, {
-          key: 'Tab',
-          keyCode: 9,
-          which: 9
-        });
-        expect(onRenderNotFoundError.called).to.be.true; // eslint-disable-line no-unused-expressions
       });
     });
   });

@@ -16,6 +16,8 @@ class ValidatedGeocomplete extends React.Component {
     this.onBlur = this.onBlur.bind(this);
     this.inputMatchesAutocomplete = this.inputMatchesAutocomplete.bind(this);
     this.renderValidationErrors = this.renderValidationErrors.bind(this);
+    this.validate = this.validate.bind(this);
+    this.isValid = this.isValid.bind(this);
   }
 
   get value() {
@@ -38,6 +40,9 @@ class ValidatedGeocomplete extends React.Component {
 
     this.autocompleteService = new googleMaps.places.AutocompleteService();
     this.geocoder = new googleMaps.Geocoder();
+    if (Boolean(this.props.initialValue)) {
+      this.validate(this.props.initialValue, () => {});
+    }
   }
 
   inputMatchesAutocomplete(userInput, matches, doesNotMatch) {
@@ -70,27 +75,41 @@ class ValidatedGeocomplete extends React.Component {
   }
 
   isValid() {
-    return this.state.validationState === "valid";
+    const isValidState = this.state.validationState === "valid",
+      isNotRequiredAndEmpty = !Boolean(this.value) && !Boolean(this.props.requiredErrorComponent),
+      checkValidationState = () => {
+        this.validate(this.value, () => {});
+        return false;
+      };
+    return isValidState || isNotRequiredAndEmpty || checkValidationState();
   }
 
   onChange(userInput) {
     this.setState({validationState: 'changing'}, () => this.props.onChange(userInput));
   }
 
-  onBlur(value) {
-    const onBlurAfterStateChange = () => this.props.onBlur(value),
-      shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
+  validate(userInput, afterValidate) {
+    const shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
       shouldValidateRequired = Boolean(this.props.requiredErrorComponent);
-
-    if (!Boolean(value) && shouldValidateRequired) {
-      this.setState({validationState: 'invalidEmpty'}, onBlurAfterStateChange);
+    if (!Boolean(userInput) && shouldValidateRequired) {
+      this.setState({validationState: 'invalidEmpty'}, afterValidate);
     } else if (shouldValidateInputFound) {
-      const inputIsValid = () => this.setState({validationState: 'valid'}, onBlurAfterStateChange),
-        inputIsNotValid = input => this.setState({validationState: 'invalidNotFound', notFoundCity: input}, onBlurAfterStateChange);
-      this.inputMatchesAutocomplete(value, inputIsValid, inputIsNotValid);
+      const inputIsValid = () => {
+          this.setState({validationState: 'valid'}, afterValidate);
+        },
+        inputIsNotValid = invalidInput => {
+          this.setState({validationState: 'invalidNotFound', notFoundCity: invalidInput}, afterValidate);
+        };
+      this.inputMatchesAutocomplete(userInput, inputIsValid, inputIsNotValid);
     } else {
-      this.props.onBlur(value);
+      this.setState({validationState: 'valid'});
+      afterValidate(userInput);
     }
+  }
+
+  onBlur(value) {
+    const afterValidate = () => this.props.onBlur(value);
+    this.validate(value, afterValidate);
   }
 
   renderValidationErrors() {
@@ -108,10 +127,10 @@ class ValidatedGeocomplete extends React.Component {
   }
 
   render() {
-    const attributes = filterInputAttributes(this.props);
+    var {onChange, onBlur, ...otherProps} = this.props;
     return (
       <div>
-        <Geocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...attributes}/>
+        <Geocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...otherProps}/>
         {this.renderValidationErrors()}
       </div>
     );

@@ -34,7 +34,8 @@ const allowedAttributes = [
   'required',
   'size',
   'spellCheck',
-  'tabIndex'
+  'tabIndex',
+  'onActivateSuggest'
 ];
 
 /**
