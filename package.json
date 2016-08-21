@@ -1,6 +1,6 @@
 {
   "name": "react-geocomplete",
-  "version": "2.0.1",
+  "version": "1.0.0",
   "description": "A React autosuggest/autocomplete for the Google Maps Places API.",
   "main": "module/Geocomplete.js",
   "author": "Max Kuipers <mkuipers@urbanbound.com>",
@@ -63,7 +63,7 @@
     "css": "cat example/src/app.css src/geocomplete.css > example/dist/app.css",
     "js:example": "browserify example/src/app.js -t babelify --extension=.jsx> example/dist/app.js",
     "js:example:uglify": "uglifyjs example/dist/app.js -o example/dist/app.js -c warnings=false --mangle",
-    "js:browser": "browserify src/Geocomplete.jsx --standalone Geocomplete --exclude react -t babelify --extension=.jsx -t browserify-global-shim > dist/react-geocomplete.js",
+    "js:browser": "browserify src/Geocomplete.js --standalone Geocomplete --exclude react -t babelify --extension=.jsx -t browserify-global-shim > dist/react-geocomplete.js",
     "js:browser:uglify": "uglifyjs dist/react-geocomplete.js -o dist/react-geocomplete.min.js -c warnings=false,drop_console=true --mangle",
     "build:module": "babel src --out-dir module && cp src/geocomplete.css module/",
     "build:browser": "npm run js:browser && npm run js:browser:uglify",

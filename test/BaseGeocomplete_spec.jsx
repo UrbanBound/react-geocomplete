@@ -3,11 +3,11 @@ import {expect} from 'chai';
 import TestUtils from 'react-addons-test-utils';
 import sinon from 'sinon';
 import googleStub from './google_stub';
-import Geocomplete from '../src/Geocomplete';
+import BaseGeocomplete from '../src/BaseGeocomplete';
 
 window.google = global.google = googleStub();
 
-describe('Component: Geocomplete', () => {
+describe('Component: BaseGeocomplete', () => {
   let component = null,
     onSuggestSelect = null,
     onActivateSuggest = null,
@@ -24,7 +24,7 @@ describe('Component: Geocomplete', () => {
       onBlur = sinon.spy();
 
       component = TestUtils.renderIntoDocument(
-        <Geocomplete
+        <BaseGeocomplete
           radius='20'
           queryDelay={0}
           onSuggestSelect={onSuggestSelect}

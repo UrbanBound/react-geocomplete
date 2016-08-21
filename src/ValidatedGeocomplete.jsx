@@ -1,8 +1,7 @@
-import filterInputAttributes from './filter-input-attributes';
 import defaults from './defaults';
 import propTypes from './prop-types';
 import React from 'react';
-import Geocomplete from './Geocomplete.jsx';
+import BaseGeocomplete from './BaseGeocomplete';
 import some from 'lodash.some';
 
 class ValidatedGeocomplete extends React.Component {
@@ -130,7 +129,7 @@ class ValidatedGeocomplete extends React.Component {
     var {onChange, onBlur, ...otherProps} = this.props;
     return (
       <div>
-        <Geocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...otherProps}/>
+        <BaseGeocomplete ref="geocompleteBase" onChange={this.onChange} onBlur={this.onBlur} {...otherProps}/>
         {this.renderValidationErrors()}
       </div>
     );

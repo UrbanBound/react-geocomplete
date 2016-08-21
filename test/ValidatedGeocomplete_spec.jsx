@@ -4,7 +4,7 @@ import TestUtils from 'react-addons-test-utils';
 import sinon from 'sinon';
 import googleStub from './google_stub';
 import ValidatedGeocomplete from '../src/ValidatedGeocomplete.jsx';
-import Geocomplete from '../src/Geocomplete.jsx';
+import BaseGeocomplete from '../src/BaseGeocomplete.jsx';
 
 window.google = global.google = googleStub();
 
@@ -53,7 +53,7 @@ describe('Component: ValidatedGeocomplete', () => {
     beforeEach(() => render());
 
     it('renders a wrapped version of the Geocomplete component', () => {
-      TestUtils.findRenderedComponentWithType(component, Geocomplete);
+      TestUtils.findRenderedComponentWithType(component, BaseGeocomplete);
     });
 
     describe('isValid()', () => {
