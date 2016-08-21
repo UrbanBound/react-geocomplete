@@ -22,6 +22,7 @@ export default {
   onFocus: () => {},
   onBlur: () => {},
   onChange: () => {},
+  onAfterValidate: () => {},
   skipSuggest: () => {},
   getSuggestLabel: suggest => suggest.description,
   autoActivateFirstSuggest: false,

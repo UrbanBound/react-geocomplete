@@ -2,7 +2,6 @@ import defaults from './defaults';
 import propTypes from './prop-types';
 import React from 'react';
 import BaseGeocomplete from './BaseGeocomplete';
-import some from 'lodash.some';
 
 class ValidatedGeocomplete extends React.Component {
   constructor(props) {
@@ -39,9 +38,16 @@ class ValidatedGeocomplete extends React.Component {
 
     this.autocompleteService = new googleMaps.places.AutocompleteService();
     this.geocoder = new googleMaps.Geocoder();
-    if (Boolean(this.props.initialValue)) {
-      this.validate(this.props.initialValue, () => {});
-    }
+
+    // This resets the state to initial so that it does not render the validation
+    // component until the element has been modified.  It would suck coming to a
+    // blank form with a ton of validation errors on it already.
+    const setBacktoInitialIfNecessary = () => {
+      if (!Boolean(this.props.initialValue) && Boolean(this.props.requiredErrorComponent)) {
+        this.setState({validationState: 'initial'});
+      }
+    };
+    this.validate(this.props.initialValue, setBacktoInitialIfNecessary);
   }
 
   inputMatchesAutocomplete(userInput, matches, doesNotMatch) {
@@ -64,10 +70,9 @@ class ValidatedGeocomplete extends React.Component {
     this.autocompleteService.getPlacePredictions(
       options,
       suggestsGoogle => {
-        if (some(suggestsGoogle, {description: userInput})) {
-          matches();
-        } else {
-          doesNotMatch(userInput);
+        if (!Boolean(suggestsGoogle)
+          || !(suggestsGoogle.some(suggest => suggest.description === userInput && matches(suggest)))) {
+          doesNotMatch({description: userInput});
         }
       }
     );
@@ -87,22 +92,41 @@ class ValidatedGeocomplete extends React.Component {
     this.setState({validationState: 'changing'}, () => this.props.onChange(userInput));
   }
 
-  validate(userInput, afterValidate) {
+  /**
+   * Update the value of the user input
+   * @param {String} userInput the new value of the user input
+   * @param {Function} onAfterValidate called after the validtaion is complete. Function
+   *   should look like Function(Boolean: isValid, String: suggest)
+   */
+
+  validate(userInput, onAfterValidate) {
     const shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
-      shouldValidateRequired = Boolean(this.props.requiredErrorComponent);
+      shouldValidateRequired = Boolean(this.props.requiredErrorComponent),
+      afterValidate = (isValid, suggest) => {
+        onAfterValidate(isValid, suggest);
+        this.props.onAfterValidate(isValid, suggest);
+      },
+      inputIsValid = validSuggest => {
+        this.setState(
+          {validationState: 'valid'},
+          afterValidate.bind(this, true, validSuggest)
+        );
+        return true;
+      },
+      inputIsNotValid = invalidSuggest => {
+        this.setState(
+          {validationState: 'invalidNotFound', notFoundCity: invalidSuggest.description},
+          afterValidate.bind(this, false, invalidSuggest)
+        );
+        return false;
+      };
+
     if (!Boolean(userInput) && shouldValidateRequired) {
-      this.setState({validationState: 'invalidEmpty'}, afterValidate);
+      this.setState({validationState: 'invalidEmpty'}, afterValidate.bind(this, false, {description: userInput}));
     } else if (Boolean(userInput) && shouldValidateInputFound) {
-      const inputIsValid = () => {
-          this.setState({validationState: 'valid'}, afterValidate);
-        },
-        inputIsNotValid = invalidInput => {
-          this.setState({validationState: 'invalidNotFound', notFoundCity: invalidInput}, afterValidate);
-        };
       this.inputMatchesAutocomplete(userInput, inputIsValid, inputIsNotValid);
     } else {
-      this.setState({validationState: 'valid'});
-      afterValidate(userInput);
+      this.setState({validationState: 'valid'}, afterValidate.bind(this, true, {description: userInput}));
     }
   }
 

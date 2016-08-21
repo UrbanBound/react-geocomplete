@@ -35,5 +35,6 @@ export default {
   ignoreTab: React.PropTypes.bool,
   notFoundErrorComponent: React.PropTypes.func,
   requiredErrorComponent: React.PropTypes.func,
-  errorInputClassName: React.PropTypes.string
+  errorInputClassName: React.PropTypes.string,
+  onAfterValidate: React.PropTypes.func
 };
