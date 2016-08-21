@@ -3710,7 +3710,9 @@ exports.default = {
     'suggests': {},
     'suggestItem': {}
   },
-  ignoreTab: false
+  ignoreTab: false,
+  notFoundErrorComponent: null,
+  requiredErrorComponent: null
 };
 
 },{}],11:[function(require,module,exports){
@@ -3966,7 +3968,9 @@ exports.default = {
     suggests: _react2.default.PropTypes.object,
     suggestItem: _react2.default.PropTypes.object
   }),
-  ignoreTab: _react2.default.PropTypes.bool
+  ignoreTab: _react2.default.PropTypes.bool,
+  notFoundErrorComponent: _react2.default.PropTypes.element,
+  requiredErrorComponent: _react2.default.PropTypes.element
 };
 
 },{}],14:[function(require,module,exports){
