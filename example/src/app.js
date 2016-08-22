@@ -20,6 +20,7 @@ var App = React.createClass({ // eslint-disable-line
     return ( // eslint-disable-line
       <div>
         <ValidatedGeocomplete
+          onAfterValidate={this.onAfterValidate}
           requiredErrorComponent={requiredErrorComponent}
           notFoundErrorComponent={notFoundErrorComponent}
           errorInputClassName="make-red"
@@ -46,6 +47,11 @@ var App = React.createClass({ // eslint-disable-line
 
   onActivateSuggest: function(value) {
     console.log('onActivateSuggest', value);
+  },
+
+  onAfterValidate: function(isValid, value) {
+    console.log('onAfterValidate isValid:', isValid);
+    console.log('onAfterValidate value:', value);
   },
 
   /**

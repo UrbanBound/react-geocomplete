@@ -16,6 +16,8 @@ class ValidatedGeocomplete extends React.Component {
     this.renderValidationErrors = this.renderValidationErrors.bind(this);
     this.validate = this.validate.bind(this);
     this.isValid = this.isValid.bind(this);
+    this.shouldValidateRequired = this.shouldValidateRequired.bind(this);
+    this.shouldValidateInputFound = this.shouldValidateInputFound.bind(this);
   }
 
   get value() {
@@ -43,11 +45,19 @@ class ValidatedGeocomplete extends React.Component {
     // component until the element has been modified.  It would suck coming to a
     // blank form with a ton of validation errors on it already.
     const setBacktoInitialIfNecessary = () => {
-      if (!Boolean(this.props.initialValue) && Boolean(this.props.requiredErrorComponent)) {
+      if (!Boolean(this.props.initialValue) && this.shouldValidateRequired()) {
         this.setState({validationState: 'initial'});
       }
     };
     this.validate(this.props.initialValue, setBacktoInitialIfNecessary);
+  }
+
+  shouldValidateRequired() {
+    return Boolean(this.props.requiredErrorComponent);
+  }
+
+  shouldValidateInputFound() {
+    return Boolean(this.props.notFoundErrorComponent);
   }
 
   inputMatchesAutocomplete(userInput, matches, doesNotMatch) {
@@ -80,12 +90,8 @@ class ValidatedGeocomplete extends React.Component {
 
   isValid() {
     const isValidState = this.state.validationState === "valid",
-      isNotRequiredAndEmpty = !Boolean(this.value) && !Boolean(this.props.requiredErrorComponent),
-      checkValidationState = () => {
-        this.validate(this.value, () => {});
-        return false;
-      };
-    return isValidState || isNotRequiredAndEmpty || checkValidationState();
+      isNotRequiredAndEmpty = !Boolean(this.value) && !this.shouldValidateRequired();
+    return isValidState || isNotRequiredAndEmpty;
   }
 
   onChange(userInput) {
@@ -100,8 +106,8 @@ class ValidatedGeocomplete extends React.Component {
    */
 
   validate(userInput, onAfterValidate) {
-    const shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
-      shouldValidateRequired = Boolean(this.props.requiredErrorComponent),
+    const shouldValidateInputFound = this.shouldValidateInputFound(),
+      shouldValidateRequired = this.shouldValidateRequired(),
       afterValidate = (isValid, suggest) => {
         onAfterValidate(isValid, suggest);
         this.props.onAfterValidate(isValid, suggest);
