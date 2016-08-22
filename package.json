@@ -1,6 +1,6 @@
 {
   "name": "react-geocomplete",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A React autosuggest/autocomplete for the Google Maps Places API. Also comes with a validation component.",
   "main": "module/Geocomplete.js",
   "author": "Max Kuipers <mkuipers@urbanbound.com>",

@@ -1,3 +1,6 @@
+### 0.0.7 (2016-08-22)
+There was an issue with the checkValidationState() in the isValid() method that might have been causing some thrashing. not at all sure why i put that there in the first place.
+
 ### 0.0.6 (2016-08-21)
 Added onAfterValidate callback to the ValidatedGeocomplete component
 

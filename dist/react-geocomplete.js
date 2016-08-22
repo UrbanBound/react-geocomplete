@@ -1131,6 +1131,8 @@ var ValidatedGeocomplete = function (_React$Component) {
     _this.renderValidationErrors = _this.renderValidationErrors.bind(_this);
     _this.validate = _this.validate.bind(_this);
     _this.isValid = _this.isValid.bind(_this);
+    _this.shouldValidateRequired = _this.shouldValidateRequired.bind(_this);
+    _this.shouldValidateInputFound = _this.shouldValidateInputFound.bind(_this);
     return _this;
   }
 
@@ -1157,11 +1159,21 @@ var ValidatedGeocomplete = function (_React$Component) {
       // component until the element has been modified.  It would suck coming to a
       // blank form with a ton of validation errors on it already.
       var setBacktoInitialIfNecessary = function setBacktoInitialIfNecessary() {
-        if (!Boolean(_this2.props.initialValue) && Boolean(_this2.props.requiredErrorComponent)) {
+        if (!Boolean(_this2.props.initialValue) && _this2.shouldValidateRequired()) {
           _this2.setState({ validationState: 'initial' });
         }
       };
       this.validate(this.props.initialValue, setBacktoInitialIfNecessary);
+    }
+  }, {
+    key: 'shouldValidateRequired',
+    value: function shouldValidateRequired() {
+      return Boolean(this.props.requiredErrorComponent);
+    }
+  }, {
+    key: 'shouldValidateInputFound',
+    value: function shouldValidateInputFound() {
+      return Boolean(this.props.notFoundErrorComponent);
     }
   }, {
     key: 'inputMatchesAutocomplete',
@@ -1195,23 +1207,17 @@ var ValidatedGeocomplete = function (_React$Component) {
   }, {
     key: 'isValid',
     value: function isValid() {
-      var _this4 = this;
-
       var isValidState = this.state.validationState === "valid",
-          isNotRequiredAndEmpty = !Boolean(this.value) && !Boolean(this.props.requiredErrorComponent),
-          checkValidationState = function checkValidationState() {
-        _this4.validate(_this4.value, function () {});
-        return false;
-      };
-      return isValidState || isNotRequiredAndEmpty || checkValidationState();
+          isNotRequiredAndEmpty = !Boolean(this.value) && !this.shouldValidateRequired();
+      return isValidState || isNotRequiredAndEmpty;
     }
   }, {
     key: 'onChange',
     value: function onChange(userInput) {
-      var _this5 = this;
+      var _this4 = this;
 
       this.setState({ validationState: 'changing' }, function () {
-        return _this5.props.onChange(userInput);
+        return _this4.props.onChange(userInput);
       });
     }
 
@@ -1225,20 +1231,20 @@ var ValidatedGeocomplete = function (_React$Component) {
   }, {
     key: 'validate',
     value: function validate(userInput, onAfterValidate) {
-      var _this6 = this;
+      var _this5 = this;
 
-      var shouldValidateInputFound = Boolean(this.props.notFoundErrorComponent),
-          shouldValidateRequired = Boolean(this.props.requiredErrorComponent),
+      var shouldValidateInputFound = this.shouldValidateInputFound(),
+          shouldValidateRequired = this.shouldValidateRequired(),
           afterValidate = function afterValidate(isValid, suggest) {
         onAfterValidate(isValid, suggest);
-        _this6.props.onAfterValidate(isValid, suggest);
+        _this5.props.onAfterValidate(isValid, suggest);
       },
           inputIsValid = function inputIsValid(validSuggest) {
-        _this6.setState({ validationState: 'valid' }, afterValidate.bind(_this6, true, validSuggest));
+        _this5.setState({ validationState: 'valid' }, afterValidate.bind(_this5, true, validSuggest));
         return true;
       },
           inputIsNotValid = function inputIsNotValid(invalidSuggest) {
-        _this6.setState({ validationState: 'invalidNotFound', notFoundCity: invalidSuggest.description }, afterValidate.bind(_this6, false, invalidSuggest));
+        _this5.setState({ validationState: 'invalidNotFound', notFoundCity: invalidSuggest.description }, afterValidate.bind(_this5, false, invalidSuggest));
         return false;
       };
 
@@ -1253,10 +1259,10 @@ var ValidatedGeocomplete = function (_React$Component) {
   }, {
     key: 'onBlur',
     value: function onBlur(value) {
-      var _this7 = this;
+      var _this6 = this;
 
       var afterValidate = function afterValidate() {
-        return _this7.props.onBlur(value);
+        return _this6.props.onBlur(value);
       };
       this.validate(value, afterValidate);
     }
